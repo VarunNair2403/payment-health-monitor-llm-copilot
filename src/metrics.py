@@ -21,18 +21,82 @@ def get_global_kpis():
         """
     )
     succeeded, attempted = cur.fetchone() or (0, 0)
+    success_rate = (succeeded / attempted) if attempted else 0.0
 
     conn.close()
-
-    success_rate = (succeeded / attempted) if attempted else 0.0
 
     return {
         "payments_count": total_count,
         "volume_cents": total_amount,
-        "success_rate": success_rate,
+        "success_rate": round(success_rate, 4),
     }
 
 
-if __name__ == "__main__":
-    kpis = get_global_kpis()
-    print(kpis)
+def get_breakdown_by_method():
+    conn = sqlite3.connect(DB_PATH)
+    cur = conn.cursor()
+    cur.execute(
+        """
+        SELECT payment_method_type,
+               COUNT(*) as count,
+               ROUND(AVG(CASE WHEN status='succeeded' THEN 1.0 ELSE 0.0 END), 4) as success_rate
+        FROM payments
+        GROUP BY payment_method_type
+        ORDER BY count DESC
+        """
+    )
+    rows = [{"method": r[0], "count": r[1], "success_rate": r[2]} for r in cur.fetchall()]
+    conn.close()
+    return rows
+
+
+def get_breakdown_by_region():
+    conn = sqlite3.connect(DB_PATH)
+    cur = conn.cursor()
+    cur.execute(
+        """
+        SELECT region,
+               COUNT(*) as count,
+               ROUND(AVG(CASE WHEN status='succeeded' THEN 1.0 ELSE 0.0 END), 4) as success_rate
+        FROM payments
+        GROUP BY region
+        ORDER BY count DESC
+        """
+    )
+    rows = [{"region": r[0], "count": r[1], "success_rate": r[2]} for r in cur.fetchall()]
+    conn.close()
+    return rows
+
+
+def get_top_failure_codes():
+    conn = sqlite3.connect(DB_PATH)
+    cur = conn.cursor()
+    cur.execute(
+        """
+        SELECT failure_code, COUNT(*) as count
+        FROM payments
+        WHERE failure_code != '' AND failure_code IS NOT NULL
+        GROUP BY failure_code
+        ORDER BY count DESC
+        LIMIT 5
+        """
+    )
+    rows = [{"failure_code": r[0], "count": r[1]} for r in cur.fetchall()]
+    conn.close()
+    return rows
+
+
+def get_dispute_refund_rates():
+    conn = sqlite3.connect(DB_PATH)
+    cur = conn.cursor()
+    cur.execute(
+        """
+        SELECT
+          ROUND(AVG(is_disputed), 4) as dispute_rate,
+          ROUND(AVG(is_refunded), 4) as refund_rate
+        FROM payments
+        """
+    )
+    row = cur.fetchone()
+    conn.close()
+    return {"dispute_rate": row[0], "refund_rate": row[1]}

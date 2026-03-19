@@ -1,4 +1,0 @@
-id,created_at,amount,currency,merchant_id,merchant_vertical,country,region,payment_method_type,card_brand,wallet_type,status,failure_code,failure_category,auth_outcome,risk_level,is_disputed,is_refunded,latency_ms,channel,experiment_bucket
-
-pmt_1,2026-03-18T09:15:00Z,4999,usd,m_1,ecommerce,US,NA,card,visa,,succeeded,,,authorized,normal,0,0,850,web,control
-pmt_2,2026-03-18T09:16:00Z,1299,usd,m_1,ecommerce,BR,LATAM,card,visa,,failed,do_not_honor,bank_decline,declined,elevated,0,0,1200,mobile,auth_opt_v1
