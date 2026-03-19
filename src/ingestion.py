@@ -4,7 +4,7 @@ from pathlib import Path
 
 DATA_DIR = Path(__file__).resolve().parents[1] / "data"
 DB_PATH = DATA_DIR / "payments.db"
-CSV_PATH = DATA_DIR / "payment_raw.csv"
+CSV_PATH = DATA_DIR / "payments_raw.csv"
 
 DDL = """
 CREATE TABLE IF NOT EXISTS payments (
