@@ -1,6 +1,6 @@
 from datetime import datetime
 from .metrics import get_global_kpis
-from .reporter import build_llm_prompt, fake_llm_call
+from .reporter import generate_narrative
 
 def main():
     snapshot = {
@@ -9,8 +9,7 @@ def main():
         "global_kpis": get_global_kpis(),
     }
 
-    prompt = build_llm_prompt(snapshot)
-    narrative = fake_llm_call(prompt)
+    narrative = generate_narrative(snapshot)
 
     print("SNAPSHOT:", snapshot)
     print("\nNARRATIVE:")
