@@ -1,3 +1,4 @@
+import sys
 from datetime import datetime
 from .metrics import (
     get_global_kpis,
@@ -10,14 +11,16 @@ from .reporter import generate_narrative
 
 
 def main():
+    window = sys.argv[1] if len(sys.argv) > 1 else None
+
     snapshot = {
         "generated_at": datetime.utcnow().isoformat() + "Z",
-        "window": "all_data",
-        "global_kpis": get_global_kpis(),
-        "by_method": get_breakdown_by_method(),
-        "by_region": get_breakdown_by_region(),
-        "top_failures": get_top_failure_codes(),
-        "dispute_refund": get_dispute_refund_rates(),
+        "window": window or "all_data",
+        "global_kpis": get_global_kpis(window),
+        "by_method": get_breakdown_by_method(window),
+        "by_region": get_breakdown_by_region(window),
+        "top_failures": get_top_failure_codes(window),
+        "dispute_refund": get_dispute_refund_rates(window),
     }
 
     narrative = generate_narrative(snapshot)

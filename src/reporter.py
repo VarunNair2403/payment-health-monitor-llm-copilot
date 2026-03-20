@@ -16,14 +16,19 @@ def build_llm_prompt(snapshot: Dict) -> str:
     rates = snapshot["dispute_refund"]
 
     method_lines = "\n".join(
-        f"  {m['method']}: {m['count']} txns, {m['success_rate']:.1%} success" for m in methods
-    )
+        f"  {m['method']}: {m['count']} txns, {m['success_rate'] or 0:.1%} success" for m in methods
+    ) or "  No data"
+
     region_lines = "\n".join(
-        f"  {r['region']}: {r['count']} txns, {r['success_rate']:.1%} success" for r in regions
-    )
+        f"  {r['region']}: {r['count']} txns, {r['success_rate'] or 0:.1%} success" for r in regions
+    ) or "  No data"
+
     failure_lines = "\n".join(
         f"  {f['failure_code']}: {f['count']} occurrences" for f in failures
-    )
+    ) or "  No data"
+
+    dispute_rate = rates["dispute_rate"] or 0
+    refund_rate = rates["refund_rate"] or 0
 
     return (
         "You are a payments product manager at a fintech company.\n"
@@ -33,13 +38,12 @@ def build_llm_prompt(snapshot: Dict) -> str:
         f"Total payments: {kpis['payments_count']}\n"
         f"Volume: ${kpis['volume_cents']/100:,.2f}\n"
         f"Success rate: {kpis['success_rate']:.1%}\n"
-        f"Dispute rate: {rates['dispute_rate']:.1%}\n"
-        f"Refund rate: {rates['refund_rate']:.1%}\n\n"
+        f"Dispute rate: {dispute_rate:.1%}\n"
+        f"Refund rate: {refund_rate:.1%}\n\n"
         f"=== By Payment Method ===\n{method_lines}\n\n"
         f"=== By Region ===\n{region_lines}\n\n"
         f"=== Top Failure Codes ===\n{failure_lines}\n"
     )
-
 
 def generate_narrative(snapshot: Dict) -> str:
     prompt = build_llm_prompt(snapshot)
