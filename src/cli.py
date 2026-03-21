@@ -8,6 +8,7 @@ from .metrics import (
     get_dispute_refund_rates,
 )
 from .reporter import generate_narrative
+from .anomaly import check_anomalies
 
 
 def main():
@@ -23,9 +24,18 @@ def main():
         "dispute_refund": get_dispute_refund_rates(window),
     }
 
+    alerts = check_anomalies(window)
     narrative = generate_narrative(snapshot)
 
     print("SNAPSHOT:", snapshot)
+
+    print(f"\nALERTS ({len(alerts)} found):")
+    if alerts:
+        for a in alerts:
+            print(f"  [{a['level'].upper()}] {a['message']}")
+    else:
+        print("  No anomalies detected.")
+
     print("\nNARRATIVE:")
     print(narrative)
 
